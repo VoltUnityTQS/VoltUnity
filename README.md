@@ -8,7 +8,7 @@
 ## b) Project Team
 | Student Name            | Nº MEC    | Role(s)                        |
 |-------------------------|---------------|--------------------------------|
-| Giogo Gaitas            | 73259         | NULL |
+| Diogo Gaitas            | 73259         | NULL |
 | Giovanni Santos         | 115637        | NULL |
 | Rafael Semedo           | 115665        | NULL |
 | Vitalie Bologa          | 107854        | NULL |
