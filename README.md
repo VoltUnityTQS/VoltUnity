@@ -8,10 +8,10 @@
 ## b) Project Team
 | Student Name            | Nº MEC    | Role(s)                        |
 |-------------------------|---------------|--------------------------------|
-| Diogo Gaitas            | 73259         | NULL |
-| Giovanni Santos         | 115637        | NULL |
-| Rafael Semedo           | 115665        | NULL |
-| Vitalie Bologa          | 107854        | NULL |
+| Diogo Gaitas            | 73259         | N/A |
+| Giovanni Santos         | 115637        | N/A |
+| Rafael Semedo           | 115665        | N/A |
+| Vitalie Bologa          | 107854        | N/A |
 
 --- 
 
@@ -22,9 +22,9 @@
 - **GitHub Repository:**  
   https://github.com/VoltUnityTQS/VoltUnity
 - **API Documentation (Swagger UI):**  
-  *NULL*
+  *N/A*
 - **Static Analysis Dashboard (SonarCloud):**  
-  *NULL* 
+  *N/A* 
 - **Product specification report**
     - https://docs.google.com/document/d/1R00x0DuEFyvcu8fs2Om8XglulbfiTjIq1eunUMcvGEM/edit?usp=sharing  
 - **Quality Assurance manual**
