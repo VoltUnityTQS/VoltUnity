@@ -1,17 +1,17 @@
 # VoltUnity - Unified EV Charging Platform
 
 ## a) Project Abstract  
-**VoltUnity** is a medium-scale microservice platform that unifies discovery, booking, charging and payment of electric-vehicle (EV) stations across multiple operators. Drivers can search and reserve charging slots in real time, unlock chargers from their phone, view consumption and CO₂-savings dashboards, and choose between pay-per-use or subscription plans. Operators get tools to register and manage stations, monitor usage trends and export reports. A public API and sandbox enable third-party integrations.
+**VoltUnity** is a medium-scale microservice platform that unifies search, booking, charging and payment of electric-vehicle (EV) stations across multiple operators. Drivers can search and reserve charging slots in real time, unlock chargers from their phone, view consumption and CO₂-savings dashboards, and choose between pay-per-use or subscription plans. Operators get tools to register and manage stations, monitor usage trends and export reports. A public API and sandbox enable third-party integrations.
 
 ---
 
 ## b) Project Team
 | Student Name            | Nº MEC    | Role(s)                        |
 |-------------------------|---------------|--------------------------------|
-| Diogo Gaitas            | 73259         | N/A |
-| Giovanni Santos         | 115637        | N/A |
-| Rafael Semedo           | 115665        | N/A |
-| Vitalie Bologa          | 107854        | N/A |
+| Diogo Gaitas            | 73259         | Product Owner |
+| Giovanni Santos         | 115637        | QA Engineer |
+| Rafael Semedo           | 115665        | Team Coordinator |
+| Vitalie Bologa          | 107854        | DevOps master |
 
 --- 
 
