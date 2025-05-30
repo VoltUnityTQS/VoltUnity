@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  # Executa sempre que houver push nas branches main ou dev
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+
+    name: Build & Test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Usa cache local para acelerar builds Maven, evitando downloads repetidos
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository                                           # Diretório onde o Maven guarda os artefactos
+            !~/.m2/repository/org/sonatype/oss/oss-parent              # Evita cache de artefactos instáveis
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}   # Cache específica por SO e POM
+          restore-keys: |
+            ${{ runner.os }}-maven-                                    # Chave de fallback caso a cache específica não exista
+
+      # Executa a build do projeto e os testes, incluindo cobertura (mvn verify faz tudo)
+      - name: Build and run tests
+        run: mvn clean verify
+
+      # Publica o relatório de cobertura JaCoCo como artefacto (ficheiro HTML)
+      - name: Upload JaCoCo Coverage Report
+        if: success()  
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report                  
+          path: target/site/jacoco/index.html 
