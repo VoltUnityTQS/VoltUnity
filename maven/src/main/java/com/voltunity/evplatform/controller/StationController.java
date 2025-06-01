@@ -19,7 +19,7 @@ public class StationController {
 
     // POST /stations
     @PostMapping
-    public ResponseEntity<Station> createStation(@RequestBody Station station) {
+    public ResponseEntity<Station> createStation(@Valid @RequestBody Station station) {
         Station savedStation = stationService.saveStation(station);
         return new ResponseEntity<>(savedStation, HttpStatus.CREATED);
     }
