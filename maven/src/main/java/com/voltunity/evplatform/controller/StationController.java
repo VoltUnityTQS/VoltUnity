@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/stations")
-@CrossOrigin(origins = "*") // opcional, útil se usares React no frontend!
+@CrossOrigin(origins = "*") // opcional, se tiveres frontend React
 public class StationController {
 
     @Autowired
@@ -24,10 +24,30 @@ public class StationController {
         return new ResponseEntity<>(savedStation, HttpStatus.CREATED);
     }
 
-    // GET /stations (opcional, para listar)
+    // GET /stations
     @GetMapping
     public ResponseEntity<List<Station>> getAllStations() {
         List<Station> stations = stationService.getAllStations();
         return new ResponseEntity<>(stations, HttpStatus.OK);
+    }
+
+    // DTO para receber o novo status
+    public static class StationStatusUpdateRequest {
+        private String stationStatus;
+
+        public String getStationStatus() {
+            return stationStatus;
+        }
+
+        public void setStationStatus(String stationStatus) {
+            this.stationStatus = stationStatus;
+        }
+    }
+
+    // PUT /stations/{id}/status
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Station> updateStationStatus(@PathVariable Long id, @RequestBody StationStatusUpdateRequest request) {
+        Station updatedStation = stationService.updateStationStatus(id, request.getStationStatus());
+        return new ResponseEntity<>(updatedStation, HttpStatus.OK);
     }
 }

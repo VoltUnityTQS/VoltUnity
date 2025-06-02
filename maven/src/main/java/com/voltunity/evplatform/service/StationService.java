@@ -20,4 +20,12 @@ public class StationService {
     public List<Station> getAllStations() {
         return stationRepository.findAll();
     }
+
+    public Station updateStationStatus(Long stationId, String newStatus) {
+        Station station = stationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Station not found with id: " + stationId));
+
+        station.setStationStatus(newStatus);
+        return stationRepository.save(station);
+    }
 }
