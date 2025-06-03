@@ -1,15 +1,14 @@
 package com.voltunity.evplatform.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.voltunity.evplatform.model.Booking;
-import com.voltunity.evplatform.model.ChargerPoint;
+import com.voltunity.evplatform.model.Slot;
 import com.voltunity.evplatform.model.Station;
 import com.voltunity.evplatform.model.User;
 import com.voltunity.evplatform.repository.BookingRepository;
-import com.voltunity.evplatform.repository.ChargerPointRepository;
+import com.voltunity.evplatform.repository.SlotRepository;
 import com.voltunity.evplatform.repository.StationRepository;
 import com.voltunity.evplatform.repository.UserRepository;
 
@@ -18,12 +17,16 @@ import java.util.List;
 
 @Service
 public class BookingService {
+
     @Autowired
     private BookingRepository bookingRepository;
+
     @Autowired
     private StationRepository stationRepository;
+
     @Autowired
-    private ChargerPointRepository chargerPointRepository;
+    private SlotRepository slotRepository;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -34,22 +37,23 @@ public class BookingService {
 
         Station station = stationRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Estação não encontrada"));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilizador não encontrado"));
 
-        List<ChargerPoint> chargerPoints = chargerPointRepository.findByStationId(stationId);
-        for (ChargerPoint cp : chargerPoints) {
-            List<Booking> overlappingBookings = bookingRepository.findByChargerPointAndTimeOverlap(cp, start, end);
-            if (overlappingBookings.isEmpty() && "available".equals(cp.getStatus())) {
+        List<Slot> slots = slotRepository.findByStation(station);
+        for (Slot slot : slots) {
+            List<Booking> overlappingBookings = bookingRepository.findBySlotAndTimeOverlap(slot, start, end);
+            if (overlappingBookings.isEmpty() && slot.getSlotStatus().equalsIgnoreCase("AVAILABLE")) {
                 Booking booking = new Booking();
                 booking.setUser(user);
-                booking.setChargerPoint(cp);
+                booking.setSlot(slot);
                 booking.setStart(start);
                 booking.setEnd(end);
                 booking.setBookingStatus("confirmed");
                 booking.setPriceAtBooking(0.0f); // Placeholder, pode ser calculado com base em tarifas
-                cp.setStatus("occupied"); // Atualizar status do slot
-                chargerPointRepository.save(cp);
+                slot.setSlotStatus("IN_USE"); // Atualizar status do slot
+                slotRepository.save(slot);
                 return bookingRepository.save(booking);
             }
         }
@@ -60,5 +64,9 @@ public class BookingService {
     public Booking getBooking(Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+    }
+
+    public Booking saveBooking(Booking booking) {
+        return bookingRepository.save(booking);
     }
 }
