@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/stations")
-@CrossOrigin(origins = "*") // opcional, se tiveres frontend React
+@CrossOrigin(origins = "*") 
 public class StationController {
 
     @Autowired
@@ -42,6 +42,23 @@ public class StationController {
     public ResponseEntity<List<Station>> getAllStations() {
         List<Station> stations = stationService.getAllStations();
         return new ResponseEntity<>(stations, HttpStatus.OK);
+    }
+
+
+    // GET /api/v1/stations
+    @GetMapping
+    public ResponseEntity<List<Station>> searchStations(
+            @RequestParam double latitude,
+            @RequestParam double longitude,
+            @RequestParam double radius,
+            @RequestParam(required = false) String tipoDeCarregador,
+            @RequestParam(required = false) Boolean disponibilidade,
+            @RequestParam(required = false) String name
+    ) {
+        List<Station> stations = stationService.searchStations(
+                latitude, longitude, radius, tipoDeCarregador, disponibilidade, name
+        );
+        return ResponseEntity.ok(stations);
     }
 
     // PUT /stations/{id}
