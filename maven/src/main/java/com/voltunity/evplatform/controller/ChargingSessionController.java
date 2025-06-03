@@ -72,4 +72,25 @@ public class ChargingSessionController {
         List<ChargingSession> sessions = chargingSessionService.getAllChargingSessions();
         return ResponseEntity.ok(sessions);
     }
+
+    // PUT /chargingSessions/{id}/cancel → cancelar sessão
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<ChargingSession> cancelSession(@PathVariable Long id) {
+        ChargingSession session = chargingSessionService.cancelSession(id);
+        return ResponseEntity.ok(session);
+    }
+
+    // GET /chargingSessions/{id} → obter sessão por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<ChargingSession> getSessionById(@PathVariable Long id) {
+        ChargingSession session = chargingSessionService.getChargingSessionById(id);
+        return ResponseEntity.ok(session);  
+    }
+
+    // GET /users/{userId}/chargingSessions → histórico do utilizador
+    @GetMapping("/users/{userId}/chargingSessions")
+    public ResponseEntity<List<ChargingSession>> getChargingSessionsByUser(@PathVariable Long userId) {
+        List<ChargingSession> sessions = chargingSessionService.getChargingSessionsByUser(userId);
+        return ResponseEntity.ok(sessions);
+    }
 }

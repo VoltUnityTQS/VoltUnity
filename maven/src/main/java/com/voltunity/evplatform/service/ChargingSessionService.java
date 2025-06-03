@@ -103,4 +103,10 @@ public class ChargingSessionService {
         return saved;
     }
 
+    public List<ChargingSession> getChargingSessionsByUser(Long userId) {
+        User user = userService.getUserById(userId);
+        return chargingSessionRepository.findByUser(user);
+    }
+    
+
 }
