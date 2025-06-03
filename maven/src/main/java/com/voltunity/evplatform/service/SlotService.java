@@ -1,6 +1,7 @@
 package com.voltunity.evplatform.service;
 
 import com.voltunity.evplatform.model.Slot;
+import com.voltunity.evplatform.model.Station;
 import com.voltunity.evplatform.repository.SlotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,10 @@ public class SlotService {
     public List<Slot> getAllSlots() {
         return slotRepository.findAll();
     }
+
+    public List<Slot> getSlotsByStation(Station station) {
+    return slotRepository.findByStation(station);
+}
 
     public Slot updateSlotStatus(Long slotId, String newStatus) {
         Slot slot = slotRepository.findById(slotId)
