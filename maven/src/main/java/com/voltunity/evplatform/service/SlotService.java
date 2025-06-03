@@ -22,15 +22,24 @@ public class SlotService {
         return slotRepository.findAll();
     }
 
-    public List<Slot> getSlotsByStation(Station station) {
-    return slotRepository.findByStation(station);
-}
-
     public Slot updateSlotStatus(Long slotId, String newStatus) {
-        Slot slot = slotRepository.findById(slotId)
-                .orElseThrow(() -> new RuntimeException("Slot not found with id: " + slotId));
-
+        Slot slot = getSlotById(slotId);
         slot.setSlotStatus(newStatus);
         return slotRepository.save(slot);
     }
+
+    public Slot getSlotById(Long id) {
+        return slotRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Slot not found with id: " + id));
+    }
+
+    public Slot updateSlot(Slot slot) {
+        return slotRepository.save(slot);
+    }
+
+    public List<Slot> getSlotsByStation(Station station) {
+        return slotRepository.findByStation(station);
+    }
+
+    
 }
