@@ -38,11 +38,13 @@ jobs:
 
       # Executa a build do projeto e os testes, incluindo cobertura (mvn verify faz tudo)
       - name: Build and run tests
+        working-directory: ./maven
         run: mvn clean verify
 
       # Publica o relatório de cobertura JaCoCo como artefacto (ficheiro HTML)
       - name: Upload JaCoCo Coverage Report
-        if: success()  
+        if: success()
+        working-directory: ./maven  
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report                  
@@ -50,6 +52,7 @@ jobs:
 
       - name: SonarQube Analysis
         if: success()
+        working-directory: ./maven
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -61,6 +64,7 @@ jobs:
 
       - name: Upload .jar artifact
         if: success()
+        working-directory: ./maven
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
