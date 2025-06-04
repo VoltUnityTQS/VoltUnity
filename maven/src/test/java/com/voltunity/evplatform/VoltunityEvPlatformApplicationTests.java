@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable;
 
 @SpringBootTest
 @Testcontainers
+@EnabledIfDockerAvailable
 class VoltunityEvPlatformApplicationTests {
 
     @Container
