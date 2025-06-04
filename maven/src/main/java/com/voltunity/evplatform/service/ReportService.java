@@ -91,7 +91,7 @@ public class ReportService {
                 .mapToDouble(ChargingSession::getEnergyConsumedKWh)
                 .sum();
 
-        // Fator típico → 0.4 kg CO2 por kWh (podes parametrizar depois)
+
         double FACTOR_CO2_KWH = 0.4;
         double totalCO2 = totalEnergy * FACTOR_CO2_KWH;
 
@@ -122,6 +122,21 @@ public class ReportService {
         public void setTotalCO2SavedKg(double totalCO2SavedKg) {
             this.totalCO2SavedKg = totalCO2SavedKg;
         }
+    }
+
+    public CO2ImpactReport getCO2ImpactForUser(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<ChargingSession> sessions = chargingSessionRepository.findByUser_IdAndStartTimestampBetween(
+                userId, startDate, endDate);
+
+        double totalEnergy = sessions.stream()
+                .filter(s -> s.getSessionStatus().equalsIgnoreCase("COMPLETED"))
+                .mapToDouble(ChargingSession::getEnergyConsumedKWh)
+                .sum();
+
+        double FACTOR_CO2_KWH = 0.4;
+        double totalCO2 = totalEnergy * FACTOR_CO2_KWH;
+
+        return new CO2ImpactReport(totalEnergy, totalCO2);
     }
 
 }
