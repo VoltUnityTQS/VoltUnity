@@ -69,4 +69,59 @@ public class ReportService {
             this.totalCost = totalCost;
         }
     }
+
+    public CO2ImpactReport getCO2ImpactReport(Long stationId, Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<ChargingSession> sessions;
+
+        if (stationId != null && userId != null) {
+            sessions = chargingSessionRepository.findBySlot_Station_IdAndUser_IdAndStartTimestampBetween(
+                    stationId, userId, startDate, endDate);
+        } else if (stationId != null) {
+            sessions = chargingSessionRepository.findBySlot_Station_IdAndStartTimestampBetween(
+                    stationId, startDate, endDate);
+        } else if (userId != null) {
+            sessions = chargingSessionRepository.findByUser_IdAndStartTimestampBetween(
+                    userId, startDate, endDate);
+        } else {
+            sessions = chargingSessionRepository.findByStartTimestampBetween(startDate, endDate);
+        }
+
+        double totalEnergy = sessions.stream()
+                .filter(s -> s.getSessionStatus().equalsIgnoreCase("COMPLETED"))
+                .mapToDouble(ChargingSession::getEnergyConsumedKWh)
+                .sum();
+
+        // Fator típico → 0.4 kg CO2 por kWh (podes parametrizar depois)
+        double FACTOR_CO2_KWH = 0.4;
+        double totalCO2 = totalEnergy * FACTOR_CO2_KWH;
+
+        return new CO2ImpactReport(totalEnergy, totalCO2);
+    }
+
+    public static class CO2ImpactReport {
+        private double totalEnergyKWh;
+        private double totalCO2SavedKg;
+
+        public CO2ImpactReport(double totalEnergyKWh, double totalCO2SavedKg) {
+            this.totalEnergyKWh = totalEnergyKWh;
+            this.totalCO2SavedKg = totalCO2SavedKg;
+        }
+
+        public double getTotalEnergyKWh() {
+            return totalEnergyKWh;
+        }
+
+        public void setTotalEnergyKWh(double totalEnergyKWh) {
+            this.totalEnergyKWh = totalEnergyKWh;
+        }
+
+        public double getTotalCO2SavedKg() {
+            return totalCO2SavedKg;
+        }
+
+        public void setTotalCO2SavedKg(double totalCO2SavedKg) {
+            this.totalCO2SavedKg = totalCO2SavedKg;
+        }
+    }
+
 }
