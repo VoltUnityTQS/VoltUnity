@@ -7,6 +7,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable;
 
 @SpringBootTest
 @Testcontainers
@@ -26,6 +27,8 @@ class VoltunityEvPlatformApplicationTests {
     }
 
     @Test
+    @EnabledIfDockerAvailable
     void contextLoads() {
     }
 }
+
