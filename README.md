@@ -8,10 +8,10 @@
 ## b) Project Team
 | Student Name            | Nº MEC    | Role(s)                        |
 |-------------------------|---------------|--------------------------------|
-| Diogo Gaitas            | 73259         | N/A |
-| Giovanni Santos         | 115637        | N/A |
-| Rafael Semedo           | 115665        | N/A |
-| Vitalie Bologa          | 107854        | N/A |
+| Diogo Gaitas            | 73259         | Product Owner |
+| Giovanni Santos         | 115637        | QA Engineer |
+| Rafael Semedo           | 115665        | Team Coordinator |
+| Vitalie Bologa          | 107854        | DevOps Master |
 
 --- 
 
