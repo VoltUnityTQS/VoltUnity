@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -104,9 +105,13 @@ public class ChargingSessionService {
     }
 
     public List<ChargingSession> getChargingSessionsByUser(Long userId) {
-        User user = userService.getUserById(userId);
-        return chargingSessionRepository.findByUser(user);
+        // Podes pôr um intervalo muito largo para histórico completo
+        LocalDateTime start = LocalDateTime.of(2000, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.now().plusYears(10);
+
+        return chargingSessionRepository.findByUser_IdAndStartTimestampBetween(userId, start, end);
     }
     
+
 
 }
