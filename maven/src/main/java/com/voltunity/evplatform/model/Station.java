@@ -17,6 +17,7 @@ public class Station {
     private String address;
     private int totalSlots;
     private float maxPower;
+    private double pricePerKWh;
 
     @ElementCollection
     private List<String> chargerTypes;
@@ -105,5 +106,13 @@ public class Station {
 
     public void setChargerTypes(List<String> chargerTypes) {
         this.chargerTypes = chargerTypes;
+    }
+
+    public double getPricePerKWh() {
+        return pricePerKWh;
+    }
+
+    public void setPricePerKWh(double pricePerKWh) {
+        this.pricePerKWh = pricePerKWh;
     }
 }
