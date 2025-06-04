@@ -1,9 +1,9 @@
 package com.voltunity.evplatform.repository;
 
-import com.voltunity.evplatform.model.Station;
-import com.voltunity.evplatform.model.User;
+//import com.voltunity.evplatform.model.Station;
+//import com.voltunity.evplatform.model.User;
 import com.voltunity.evplatform.model.ChargingSession;
-import com.voltunity.evplatform.model.Slot;
+//import com.voltunity.evplatform.model.Slot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -24,4 +24,6 @@ public interface ChargingSessionRepository extends JpaRepository<ChargingSession
 
     List<ChargingSession> findByStartTimestampBetween(
             LocalDateTime start, LocalDateTime end);
+
+            
 }
