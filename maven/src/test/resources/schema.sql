@@ -8,7 +8,7 @@ CREATE TABLE users (
 );
 
 -- CARS
-CREATE TABLE car (
+CREATE TABLE cars (
                      id SERIAL PRIMARY KEY,
                      make VARCHAR(50),
                      model VARCHAR(50),
@@ -17,7 +17,7 @@ CREATE TABLE car (
 );
 
 -- STATIONS
-CREATE TABLE station (
+CREATE TABLE stations (
                          id SERIAL PRIMARY KEY,
                          name VARCHAR(100),
                          station_status VARCHAR(20),
@@ -30,15 +30,15 @@ CREATE TABLE station (
 );
 
 -- SLOTS
-CREATE TABLE slot (
+CREATE TABLE slots (
                       id SERIAL PRIMARY KEY,
                       slot_status VARCHAR(20),
                       power DOUBLE PRECISION,
-                      station_id INT REFERENCES station(id)
+                      station_id INT REFERENCES stations(id)
 );
 
 -- SUBSCRIPTIONS
-CREATE TABLE subscription (
+CREATE TABLE subscriptions (
                               id SERIAL PRIMARY KEY,
                               subscription_type VARCHAR(50),
                               start_date TIMESTAMP,
@@ -50,29 +50,29 @@ CREATE TABLE subscription (
 );
 
 -- BOOKINGS
-CREATE TABLE booking (
+CREATE TABLE bookings (
                          id SERIAL PRIMARY KEY,
                          booking_status VARCHAR(20),
                          start TIMESTAMP,
                          end TIMESTAMP,
                          price_at_booking DOUBLE PRECISION,
                          user_id INT REFERENCES users(id),
-                         slot_id INT REFERENCES slot(id)
+                         slot_id INT REFERENCES slots(id)
 );
 
 -- CHARGING_SESSIONS
-CREATE TABLE charging_session (
+CREATE TABLE charging_sessions (
                                   id SERIAL PRIMARY KEY,
                                   start_timestamp TIMESTAMP,
                                   end_timestamp TIMESTAMP,
                                   energy_kwh DOUBLE PRECISION,
                                   total_price DOUBLE PRECISION,
                                   user_id INT REFERENCES users(id),
-                                  slot_id INT REFERENCES slot(id)
+                                  slot_id INT REFERENCES slots(id)
 );
 
 -- PAYMENTS
-CREATE TABLE payment (
+CREATE TABLE payments (
                          id SERIAL PRIMARY KEY,
                          payment_status VARCHAR(20),
                          amount DOUBLE PRECISION,
