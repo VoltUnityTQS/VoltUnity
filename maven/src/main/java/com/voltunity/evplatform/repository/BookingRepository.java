@@ -22,5 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
               "AND b.bookingStatus = 'confirmed' " +
               "AND :now BETWEEN b.start AND b.end")
        Optional<Booking> findValidBookingForSlot(Slot slot, LocalDateTime now);
+
+    List<Booking> findByUser_Id(Long userId);
 }
 

@@ -74,15 +74,18 @@ public class BookingService {
     }
 
     public Booking cancelBooking(Long bookingId) {
-        Booking booking = getBooking(bookingId); 
+        Booking booking = getBooking(bookingId);
 
         booking.setBookingStatus("cancelled");
 
-        // Se quiseres, também podes libertar o Slot:
         Slot slot = booking.getSlot();
         slot.setSlotStatus("AVAILABLE");
-        slotService.updateSlot(slot); 
+        slotService.updateSlot(slot);
 
         return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsByUser(Long userId) {
+        return bookingRepository.findByUser_Id(userId);
     }
 }
