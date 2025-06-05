@@ -69,4 +69,8 @@ public class BookingService {
     public Booking saveBooking(Booking booking) {
         return bookingRepository.save(booking);
     }
+
+    public Booking cancelBooking(Long bookingId) {
+        return null;
+    }
 }

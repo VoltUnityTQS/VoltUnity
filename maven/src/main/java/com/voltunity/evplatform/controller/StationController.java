@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stations")
+@RequestMapping("/api/v1/stations")
 @CrossOrigin(origins = "*") 
 public class StationController {
 
@@ -37,7 +37,7 @@ public class StationController {
         return new ResponseEntity<>(slots, HttpStatus.OK);
     }
 
-    // GET /stations
+    // GET /api/v1/stations
     @GetMapping
     public ResponseEntity<List<Station>> getAllStations() {
         List<Station> stations = stationService.getAllStations();
@@ -45,8 +45,8 @@ public class StationController {
     }
 
 
-    // GET /api/v1/stations
-    @GetMapping
+    // GET /api/v1/stations/search
+    @GetMapping("/search")
     public ResponseEntity<List<Station>> searchStations(
             @RequestParam double latitude,
             @RequestParam double longitude,

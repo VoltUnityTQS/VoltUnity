@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  # Executa sempre que houver push nas branches main ou dev
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+
+jobs:
+  build-test:
+
+    name: Build & Test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      # Usa cache local para acelerar builds Maven, evitando downloads repetidos
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository                                           # Diretório onde o Maven guarda os artefactos
+            !~/.m2/repository/org/sonatype/oss/oss-parent              # Evita cache de artefactos instáveis
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}   # Cache específica por SO e POM
+          restore-keys: |
+            ${{ runner.os }}-maven-                                    # Chave de fallback caso a cache específica não exista
+
+      # Executa a build do projeto e os testes, incluindo cobertura (mvn verify faz tudo)
+      - name: Build and run tests
+        working-directory: ./maven
+        run: mvn clean verify
+
+      # Publica o relatório de cobertura JaCoCo como artefacto (ficheiro HTML)
+      - name: Upload JaCoCo Coverage Report
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report                  
+          path: target/site/jacoco/index.html 
+
+      # - name: SonarQube Analysis
+      #   if: success()
+      #   working-directory: ./maven
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: |
+      #     mvn sonar:sonar \
+      #       -Dsonar.projectKey=VoltUnity \
+      #       -Dsonar.projectName='VoltUnity' \
+      #       -Dsonar.host.url=http://localhost:9000 \
+      #       -Dsonar.login=$SONAR_TOKEN
+
+      - name: Upload .jar artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+
+      - name: Upload test results to Xray Cloud
+        continue-on-error: true
+        env:
+          XRAYCLOUD_CLIENT_ID: ${{ secrets.XRAYCLOUD_CLIENT_ID }}
+          XRAYCLOUD_CLIENT_SECRET: ${{ secrets.XRAYCLOUD_CLIENT_SECRET }}
+          XRAYCLOUD_TEST_PLAN_KEY: ${{ secrets.XRAYCLOUD_TEST_PLAN_KEY }}
+          REVISION: ${{ github.ref_name }}
+          TEST_ENVIRONMENT: java${{ matrix.java }}
+        run: |
+          mvn \
+            -Dxray.clientId=${XRAYCLOUD_CLIENT_ID} \
+            -Dxray.clientSecret=${XRAYCLOUD_CLIENT_SECRET} \
+            -Dxray.testEnvironment=${TEST_ENVIRONMENT} \
+            -Dxray.testPlanKey=${XRAYCLOUD_TEST_PLAN_KEY} \
+            -Dxray.revision=${REVISION} \
+            xray:import-results
+
