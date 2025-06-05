@@ -62,12 +62,10 @@ public class StationService {
             Boolean disponibilidade,
             String name
     ) {
-        // Passo 1: Buscar estações por localização e nome
         List<Station> stations = stationRepository.findStationsByLocationAndName(
                 latitude, longitude, radius, name
         );
 
-        // Passo 2: Filtrar por tipo de carregador se fornecido
         if (tipoDeCarregador != null && !tipoDeCarregador.isEmpty()) {
             stations = stations.stream()
                     .filter(s -> s.getChargerTypes() != null &&
@@ -76,7 +74,6 @@ public class StationService {
                     .collect(Collectors.toList());
         }
 
-        // Passo 3: Filtrar por disponibilidade se fornecido
         if (disponibilidade != null && disponibilidade) {
             stations = stations.stream()
                     .filter(s -> slotService.getSlotsByStation(s).stream()
@@ -86,4 +83,13 @@ public class StationService {
 
         return stations;
     }
+
+    public Station updateStationPricing(Long stationId, double newPricePerKWh) {
+        Station station = stationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Estação não encontrada"));
+
+        station.setPricePerKWh(newPricePerKWh);
+        return stationRepository.save(station);
+    }
+    
 }
