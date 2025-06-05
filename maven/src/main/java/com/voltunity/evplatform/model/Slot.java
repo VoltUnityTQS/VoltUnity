@@ -3,6 +3,7 @@ package com.voltunity.evplatform.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "slots")
 public class Slot {
 
     @Id
