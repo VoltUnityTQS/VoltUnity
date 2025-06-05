@@ -1,7 +1,10 @@
 package com.voltunity.evplatform.controller;
 
 import com.voltunity.evplatform.model.Payment;
+import com.voltunity.evplatform.model.User;
 import com.voltunity.evplatform.service.PaymentService;
+import com.voltunity.evplatform.service.SecurityService;
+import com.voltunity.evplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,12 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private SecurityService securityService;
 
     public static class PaymentRequest {
         public Long userId;
@@ -35,7 +44,16 @@ public class PaymentController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<List<Payment>> getPaymentsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(paymentService.getPaymentsByUser(userId));
+    public ResponseEntity<List<Payment>> getPaymentsByUser(
+            @PathVariable Long userId,
+            @RequestHeader("X-User-Id") Long currentUserId
+    ) {
+        User currentUser = userService.getUserById(currentUserId);
+
+        if (securityService.isAdmin(currentUser) || securityService.isSameUser(currentUser, userId)) {
+            return ResponseEntity.ok(paymentService.getPaymentsByUser(userId));
+        } else {
+            return ResponseEntity.status(403).build();
+        }
     }
 }
