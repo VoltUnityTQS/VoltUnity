@@ -49,21 +49,39 @@ jobs:
           name: jacoco-report                  
           path: target/site/jacoco/index.html 
 
-      - name: SonarQube Analysis
-        if: success()
-        working-directory: ./maven
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=VoltUnity \
-            -Dsonar.projectName='VoltUnity' \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=$SONAR_TOKEN
+      # - name: SonarQube Analysis
+      #   if: success()
+      #   working-directory: ./maven
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: |
+      #     mvn sonar:sonar \
+      #       -Dsonar.projectKey=VoltUnity \
+      #       -Dsonar.projectName='VoltUnity' \
+      #       -Dsonar.host.url=http://localhost:9000 \
+      #       -Dsonar.login=$SONAR_TOKEN
 
       - name: Upload .jar artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: target/*.jar    
+          path: target/*.jar
+
+      - name: Upload test results to Xray Cloud
+        continue-on-error: true
+        env:
+          XRAYCLOUD_CLIENT_ID: ${{ secrets.XRAYCLOUD_CLIENT_ID }}
+          XRAYCLOUD_CLIENT_SECRET: ${{ secrets.XRAYCLOUD_CLIENT_SECRET }}
+          XRAYCLOUD_TEST_PLAN_KEY: ${{ secrets.XRAYCLOUD_TEST_PLAN_KEY }}
+          REVISION: ${{ github.ref_name }}
+          TEST_ENVIRONMENT: java${{ matrix.java }}
+        run: |
+          mvn \
+            -Dxray.clientId=${XRAYCLOUD_CLIENT_ID} \
+            -Dxray.clientSecret=${XRAYCLOUD_CLIENT_SECRET} \
+            -Dxray.testEnvironment=${TEST_ENVIRONMENT} \
+            -Dxray.testPlanKey=${XRAYCLOUD_TEST_PLAN_KEY} \
+            -Dxray.revision=${REVISION} \
+            xray:import-results
+
