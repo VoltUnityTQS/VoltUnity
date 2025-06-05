@@ -25,6 +25,13 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
       # Usa cache local para acelerar builds Maven, evitando downloads repetidos
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -49,17 +56,12 @@ jobs:
           name: jacoco-report                  
           path: target/site/jacoco/index.html 
 
-      # - name: SonarQube Analysis
-      #   if: success()
-      #   working-directory: ./maven
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   run: |
-      #     mvn sonar:sonar \
-      #       -Dsonar.projectKey=VoltUnity \
-      #       -Dsonar.projectName='VoltUnity' \
-      #       -Dsonar.host.url=http://localhost:9000 \
-      #       -Dsonar.login=$SONAR_TOKEN
+      - name: SonarQube Analysis
+        if: success()
+        working-directory: ./maven
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=VoltUnityTQS_VoltUnity
 
       - name: Upload .jar artifact
         if: success()
