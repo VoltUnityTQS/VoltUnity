@@ -14,13 +14,13 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
        @Query("SELECT b FROM Booking b WHERE b.slot = :slot AND " +
-            "(:start < b.end AND :end > b.start)")
+            "(:start < b.end_time AND :end_time > b.start)")
     List<Booking> findBySlotAndTimeOverlap(Slot slot, LocalDateTime start, LocalDateTime end);
 
 
        @Query("SELECT b FROM Booking b WHERE b.slot = :slot " +
               "AND b.bookingStatus = 'confirmed' " +
-              "AND :now BETWEEN b.start AND b.end")
+              "AND :now BETWEEN b.start AND b.end_time")
        Optional<Booking> findValidBookingForSlot(Slot slot, LocalDateTime now);
 
     List<Booking> findByUser_Id(Long userId);

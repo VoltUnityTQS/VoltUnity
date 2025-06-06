@@ -1,9 +1,12 @@
 package com.voltunity.evplatform.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.voltunity.evplatform.model.ChargingSession;
+import com.voltunity.evplatform.model.*;
+import com.voltunity.evplatform.repository.ChargingSessionRepository;
 import com.voltunity.evplatform.repository.SlotRepository;
+import com.voltunity.evplatform.repository.StationRepository;
 import com.voltunity.evplatform.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +22,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.empty;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -31,11 +34,13 @@ import static org.hamcrest.Matchers.*;
 @Testcontainers
 public class ChargingSessionControllerIT {
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private SlotRepository slotRepository;
+    @Autowired private StationRepository stationRepository;
+    @Autowired private ChargingSessionRepository chargingSessionRepository;
 
-    @Autowired
-    private SlotRepository slotRepository;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
 
     @Container
     public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
@@ -48,14 +53,50 @@ public class ChargingSessionControllerIT {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 
-    @Autowired
-    private MockMvc mockMvc;
+    private User user;
+    private Slot slot;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @BeforeEach
+    void setup() {
+        // Limpar dados antigos
+        chargingSessionRepository.deleteAll();
+        slotRepository.deleteAll();
+        stationRepository.deleteAll();
+        userRepository.deleteAll();
+
+        // Criar e salvar entidades necessárias
+        user = new User("Alice", "alice@example.com","user123", "USER");
+        user = userRepository.save(user);
+
+        Station station = new Station();
+        station.setName("Test Station");
+        station.setStationStatus("ACTIVE");
+        station.setLat((float) 40.0);
+        station.setLng((float) -8.0);
+        station.setAddress("Rua Teste");
+        station.setTotalSlots(4);
+        station.setMaxPower((float) 22.0);
+        station.setPricePerKWh(0.3);
+        station = stationRepository.save(station);
+
+        slot = new Slot();
+        slot.setSlotStatus("AVAILABLE");
+        slot.setPower((float) 22.0);
+        slot.setStation(station);
+        slot = slotRepository.save(slot);
+
+        // Criar sessão de carregamento para os testes de GET
+        ChargingSession session = new ChargingSession();
+        session.setUser(user);
+        session.setSlot(slot);
+        session.setStartTimestamp(LocalDateTime.now().minusHours(1));
+        session.setEndTimestamp(LocalDateTime.now());
+        session.setEnergyConsumedKWh(10.0);
+        chargingSessionRepository.save(session);
+    }
 
     @Test
     public void testGetAllChargingSessions() throws Exception {
@@ -66,25 +107,19 @@ public class ChargingSessionControllerIT {
 
     @Test
     public void testCreateChargingSession() throws Exception {
-        ChargingSession session = new ChargingSession();
-        session.setUser(userRepository.findById(1L).orElseThrow());
-        session.setSlot(slotRepository.findById(1L).orElseThrow());
-        session.setSessionStatus("ACTIVE");
-        session.setStartTimestamp(LocalDateTime.now().minusMinutes(30));
-        session.setEndTimestamp(LocalDateTime.now());
-        session.setEnergyConsumedKWh(12.5); // usa o nome certo do teu model
+        var request = new ChargingSessionController.StartSessionRequest();
+        request.setUserId(user.getId());
+        request.setSlotId(slot.getId());
 
         mockMvc.perform(post("/api/v1/charging-sessions")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(session)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     public void testGetChargingSessionsByUser() throws Exception {
-        Long userId = 1L;
-
-        mockMvc.perform(get("/api/v1/charging-sessions/user/" + userId))
+        mockMvc.perform(get("/api/v1/charging-sessions/user/" + user.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", not(empty())));
     }
