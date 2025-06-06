@@ -30,6 +30,9 @@ public class BookingService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private SlotService slotService;
+
     public Booking createBooking(Long stationId, LocalDateTime start, LocalDateTime end, Long userId) {
         if (start.isAfter(end) || start.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("Intervalo de tempo inválido");
@@ -49,7 +52,7 @@ public class BookingService {
                 booking.setUser(user);
                 booking.setSlot(slot);
                 booking.setStart(start);
-                booking.setEnd(end);
+                booking.setEnd_time(end);
                 booking.setBookingStatus("confirmed");
                 booking.setPriceAtBooking(0.0f); // Placeholder, pode ser calculado com base em tarifas
                 slot.setSlotStatus("IN_USE"); // Atualizar status do slot
@@ -71,6 +74,18 @@ public class BookingService {
     }
 
     public Booking cancelBooking(Long bookingId) {
-        return null;
+        Booking booking = getBooking(bookingId);
+
+        booking.setBookingStatus("cancelled");
+
+        Slot slot = booking.getSlot();
+        slot.setSlotStatus("AVAILABLE");
+        slotService.updateSlot(slot);
+
+        return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsByUser(Long userId) {
+        return bookingRepository.findByUser_Id(userId);
     }
 }

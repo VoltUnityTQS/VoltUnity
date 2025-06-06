@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "bookings")
 public class Booking {
 
     @Id
@@ -23,7 +24,10 @@ public class Booking {
 
     private LocalDateTime start;
 
-    private LocalDateTime end;
+
+    @Column(name = "end_timestamp")
+    private LocalDateTime end_time;
+
 
     private float priceAtBooking;
 
@@ -69,12 +73,12 @@ public class Booking {
         this.start = start;
     }
 
-    public LocalDateTime getEnd() {
-        return end;
+    public LocalDateTime getEnd_time() {
+        return end_time;
     }
 
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
+    public void setEnd_time(LocalDateTime end_time) {
+        this.end_time = end_time;
     }
 
     public float getPriceAtBooking() {

@@ -67,7 +67,7 @@ public class ReservationController {
         booking.setUser(user);
         booking.setBookingStatus("confirmed");
         booking.setStart(request.getStart());
-        booking.setEnd(request.getEnd());
+        booking.setEnd_time(request.getEnd());
         booking.setPriceAtBooking(0.0f);
 
         Booking savedBooking = bookingService.saveBooking(booking);
