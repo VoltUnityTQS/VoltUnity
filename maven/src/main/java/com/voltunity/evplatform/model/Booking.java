@@ -24,7 +24,7 @@ public class Booking {
 
     private LocalDateTime start;
 
-    private LocalDateTime end;
+    private LocalDateTime end_time;
 
     private float priceAtBooking;
 
@@ -70,12 +70,12 @@ public class Booking {
         this.start = start;
     }
 
-    public LocalDateTime getEnd() {
-        return end;
+    public LocalDateTime getEnd_time() {
+        return end_time;
     }
 
-    public void setEnd(LocalDateTime end) {
-        this.end = end;
+    public void setEnd_time(LocalDateTime end_time) {
+        this.end_time = end_time;
     }
 
     public float getPriceAtBooking() {
