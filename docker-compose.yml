@@ -26,18 +26,18 @@ services:
     ports:
       - "8080:8080"
 
-  # frontend:
-  #   build:
-  #     context: ./frontend/voltUnity
-  #   container_name: react_app
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #   - .env:/app/.env
-  #   stdin_open: true
-  #   tty: true
-  #   depends_on:
-  #     - springboot-app
+  frontend:
+    build:
+      context: ./frontend/voltUnity
+    container_name: react_app
+    ports:
+      - 80:80
+    volumes:
+    - .env:/app/.env
+    stdin_open: true
+    tty: true
+    depends_on:
+      - springboot-app
 
 volumes:
   postgres_data:
