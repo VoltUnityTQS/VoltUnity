@@ -26,7 +26,7 @@ public class Booking {
 
 
     @Column(name = "end_timestamp")
-    private LocalDateTime end;
+    private LocalDateTime end_time;
 
 
     private float priceAtBooking;

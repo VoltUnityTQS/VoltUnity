@@ -22,7 +22,7 @@
 - **GitHub Repository:**  
   https://github.com/VoltUnityTQS/VoltUnity
 - **API Documentation (Swagger UI):**  
-  *N/A*
+  http://localhost:8080/swagger-ui/index.html
 - **Static Analysis Dashboard (SonarCloud):**  
   *N/A* 
 - **Product specification report**
