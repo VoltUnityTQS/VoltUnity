@@ -8,8 +8,8 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { getStation, createBooking } from '../../services/api';
 
 const getColor = (status) => {
-    if (status === 'available') return 'text-success';
-    if (status === 'in_use') return 'text-warning';
+    if (status === 'AVAILABLE') return 'text-success';
+    if (status === 'IN_USE') return 'text-warning';
     return 'text-danger';
 };
 
@@ -28,15 +28,16 @@ const StationPage = () => {
                 setStation({
                     id: data.id,
                     nome: data.name,
-                    distancia: data.distance || 0 // se tiveres esta info
+                    distancia: 0 // não tens no backend
                 });
-                // Adaptar os slots
+
                 const slotsAdapted = data.slots.map(slot => ({
                     id: slot.id,
                     status: slot.slotStatus,
-                    capacidadeKW: slot.capacityKW,
-                    rapido: slot.fast
+                    capacidadeKW: slot.power,
+                    rapido: slot.type && slot.type.toLowerCase().includes('fast')
                 }));
+
                 setSlots(slotsAdapted);
             } catch (error) {
                 console.error('Erro ao buscar estação:', error);
@@ -48,12 +49,17 @@ const StationPage = () => {
 
     const handleBooking = async (slotId) => {
         try {
-            const userData = {
-                user: 'user@example.com' // podes melhorar depois (ex: user autenticado)
+            const bookingData = {
+                slotId: slotId,
+                userId: 1, // hardcoded user por agora (ajustar se tiveres auth)
+                start: new Date().toISOString(),
+                end: new Date(Date.now() + 3600000).toISOString(), // +1h
+                priceAtBooking: 5.0,
+                bookingStatus: 'CONFIRMED'
             };
-            await createBooking(stationId, slotId, userData);
+
+            await createBooking(bookingData);
             alert(`Booking criado para Slot ${slotId} na estação ${station?.nome}!`);
-            // Podes refazer fetch dos slots se quiseres atualizar estado
         } catch (error) {
             console.error('Erro ao criar booking:', error);
             alert('Erro ao criar booking.');
@@ -93,7 +99,7 @@ const StationPage = () => {
                                 <td>
                                     <Button
                                         variant="primary"
-                                        disabled={slot.status !== 'available'}
+                                        disabled={slot.status !== 'AVAILABLE'}
                                         onClick={() => handleBooking(slot.id)}
                                     >
                                         Reservar

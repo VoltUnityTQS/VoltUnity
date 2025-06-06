@@ -25,18 +25,21 @@ const UserMain = () => {
         async function fetchStations() {
             try {
                 const data = await getStations();
-                // Adaptar: o backend devolve "name", slots e estado calculável
-                const stationsAdapted = data.map(st => ({
-                    id: st.id,
-                    nome: st.name,
-                    distancia: st.distance || 0, // se tiveres esta info, se não, podes deixar 0
-                    rapido: st.slots.some(slot => slot.fast), // se algum slot for rápido
-                    status: st.slots.some(slot => slot.slotStatus === 'available')
-                        ? 'available'
-                        : st.slots.every(slot => slot.slotStatus === 'maintenance')
-                        ? 'maintenance'
-                        : 'in_use'
-                }));
+                // Proteção para slots!
+                const stationsAdapted = data.map(st => {
+                    const slots = Array.isArray(st.slots) ? st.slots : [];
+                    return {
+                        id: st.id,
+                        nome: st.name,
+                        distancia: st.distance || 0,
+                        rapido: slots.some(slot => slot.type === 'DC'),
+                        status: slots.some(slot => slot.slotStatus === 'AVAILABLE')
+                            ? 'available'
+                            : slots.every(slot => slot.slotStatus === 'MAINTENANCE')
+                            ? 'maintenance'
+                            : 'in_use'
+                    };
+                });
                 setStations(stationsAdapted);
             } catch (error) {
                 console.error('Erro ao buscar estações:', error);
