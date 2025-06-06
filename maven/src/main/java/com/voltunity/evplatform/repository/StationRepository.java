@@ -12,7 +12,7 @@ public interface StationRepository extends JpaRepository<Station, Long> {
 
     // Busca por localização (distância em metros), com filtros opcionais
     @Query(value = """
-        SELECT s.* FROM station s
+        SELECT s.* FROM stations s
         WHERE (
             6371000 * acos(
                 cos(radians(:latitude)) * cos(radians(s.lat)) *

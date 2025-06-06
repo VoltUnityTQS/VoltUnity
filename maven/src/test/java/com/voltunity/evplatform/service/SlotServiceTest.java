@@ -2,7 +2,6 @@
 package com.voltunity.evplatform.service;
 
 import com.voltunity.evplatform.model.Slot;
-import com.voltunity.evplatform.model.Station;
 import com.voltunity.evplatform.repository.SlotRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
