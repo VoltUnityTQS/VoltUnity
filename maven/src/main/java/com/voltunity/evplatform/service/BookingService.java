@@ -52,7 +52,7 @@ public class BookingService {
                 booking.setUser(user);
                 booking.setSlot(slot);
                 booking.setStart(start);
-                booking.setEnd(end);
+                booking.setEnd_time(end);
                 booking.setBookingStatus("confirmed");
                 booking.setPriceAtBooking(0.0f); // Placeholder, pode ser calculado com base em tarifas
                 slot.setSlotStatus("IN_USE"); // Atualizar status do slot

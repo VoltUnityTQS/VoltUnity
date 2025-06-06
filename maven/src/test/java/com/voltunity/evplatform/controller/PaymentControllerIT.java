@@ -2,7 +2,10 @@ package com.voltunity.evplatform.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voltunity.evplatform.model.Payment;
+import com.voltunity.evplatform.model.User;
+import com.voltunity.evplatform.repository.PaymentRepository;
 import com.voltunity.evplatform.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,17 +21,24 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
 public class PaymentControllerIT {
+
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private UserRepository userRepository;
+    @Autowired private PaymentRepository paymentRepository;
+
+    private User testUser;
+    private Payment payment;
 
     @Container
     public static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
@@ -41,17 +51,30 @@ public class PaymentControllerIT {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "none");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
     }
 
-    @Autowired
-    private MockMvc mockMvc;
+    @BeforeEach
+    void setUp() {
+        paymentRepository.deleteAll();
+        userRepository.deleteAll();
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        testUser = new User();
+        testUser.setName("Alice");
+        testUser.setEmail("alice@example.com");
+        testUser.setPassword("pass123");
+        testUser.setRole("USER");
+        testUser = userRepository.save(testUser);
 
-    @Autowired
-    private UserRepository userRepository;
+        payment = new Payment();
+        payment.setUser(testUser);
+        payment.setAmount(15.0);
+        payment.setCurrency("EUR");
+        payment.setTimestamp(LocalDateTime.now());
+        payment.setPaymentStatus("COMPLETED");
+        payment = paymentRepository.save(payment);
+
+    }
 
     @Test
     public void testGetAllPayments() throws Exception {
@@ -60,19 +83,17 @@ public class PaymentControllerIT {
                 .andExpect(jsonPath("$", not(empty())));
     }
 
-
     @Test
     public void testCreatePayment() throws Exception {
-        Payment payment = new Payment();
-        payment.setUser(userRepository.findById(1L).orElseThrow());
-        payment.setAmount(15.0);
-        payment.setCurrency("EUR");
-        payment.setTimestamp(LocalDateTime.now());
-        payment.setPaymentStatus("COMPLETED");
 
+        var request = new PaymentController.PaymentRequest();
+        request.userId = testUser.getId();
+        request.amount = 15.0;
+        request.currency = "EUR";
+        
         mockMvc.perform(post("/api/v1/payments")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(payment)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
     }
 }
