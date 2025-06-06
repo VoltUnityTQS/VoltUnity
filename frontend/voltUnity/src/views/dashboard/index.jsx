@@ -12,7 +12,7 @@ import {
     Legend
 } from 'chart.js';
 
-import api from '../../services/api';
+import { api } from '../../services/api';
 
 // Registrar Chart.js components
 ChartJS.register(
