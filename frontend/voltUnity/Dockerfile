@@ -3,7 +3,7 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 COPY . .
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 RUN yarn build
 
 # Etapa 2: Servir com nginx
