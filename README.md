@@ -29,6 +29,8 @@
     - https://docs.google.com/document/d/1R00x0DuEFyvcu8fs2Om8XglulbfiTjIq1eunUMcvGEM/edit?usp=sharing  
 - **Quality Assurance manual**
     - https://docs.google.com/document/d/1GxS0mjWFWpdJJCxB7eOgNDMQjC87Ltm3WZVQiWVAiW4/edit?usp=sharing
+- **Server URL:**
+  http://deti-tqs-16
 
 ---
 
