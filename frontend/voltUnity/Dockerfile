@@ -1,31 +1,14 @@
-################################
-## BUILD ENVIRONMENT ###########
-################################
-FROM node:22-alpine3.20 AS build
+# Etapa 1: Build da aplicação
+FROM node:18-alpine as build
 
-# Cria o diretório de trabalho corretamente
-WORKDIR /usr/src/app
-
-# Copia os arquivos de dependências (verifique se package-lock.json existe)
-COPY package.json package-lock.json ./
-
-# Instala dependências com npm (modo estrito)
-RUN npm ci --omit=dev
-
-# Copia o restante do projeto (excluindo node_modules)
+WORKDIR /app
 COPY . .
+RUN yarn install --frozen-lockfile
+RUN yarn build
 
-# Build da aplicação React
-RUN npm run build
-
-################################
-#### PRODUCTION ENVIRONMENT ####
-################################
-FROM nginx:stable-alpine AS production
-
-# Copia os arquivos buildados
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
-
-# Configuração do Nginx
+# Etapa 2: Servir com nginx
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
