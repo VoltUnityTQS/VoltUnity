@@ -31,3 +31,15 @@
     - https://docs.google.com/document/d/1GxS0mjWFWpdJJCxB7eOgNDMQjC87Ltm3WZVQiWVAiW4/edit?usp=sharing
 
 ---
+
+## Run Container
+
+```sh
+docker compose up -d --build
+```
+
+## CLose container
+
+```sh
+docker compose down -v
+```

@@ -26,11 +26,11 @@ jobs:
           |1|SYSsd4sqLqmIQykyvA8QuVcY/1A=|wb0fKVh2nfnTcgBT0lm9rY2vOzU= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJpEcifz7XYmuANGC0DrvucYt36slUJFOQ7hN021F5my
           " >> ~/.ssh/known_hosts
 
-      - name: Deploy containers via SSH
+      - name: Deploy via SSH
         run: |
           ssh giovanni.s@deti-tqs-16.ua.pt << 'EOF'
-        cd /caminho/do/seu/projeto
-            git pull
-            docker compose down
-            docker compose up -d --build
+            cd /home/giovanni.s/VoltUnity
+            git pull origin main
+            docker-compose down -v
+            docker-compose up -d --build
           EOF
