@@ -35,6 +35,10 @@ const routes = [
     layout: AdminLayout,
     routes: [
       {
+        path: '/',
+        element: () => <Navigate to="/app/dashboard/default" />
+      },
+      {
         exact: 'true',
         path: '/app/dashboard/default',
         element: lazy(() => import('./views/dashboard'))
