@@ -34,6 +34,6 @@ jobs:
           ssh giovanni.s@deti-tqs-16.ua.pt << 'EOF'
             cd /home/giovanni.s/VoltUnity
             git pull origin main
-            docker-compose down -v
-            docker-compose up -d --build
+            docker compose down -v
+            docker compose up -d --build
           EOF
