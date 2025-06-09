@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Table, Form, Row, Col } from 'react-bootstrap';
-import { getAllCars, addCarGlobal, deleteCarGlobal, getUsers } from '../../services/api';
+import { getAllCars, addCarGlobal, deleteCar, getUsers } from '../../services/api';
 
 const ManageCars = () => {
     const [cars, setCars] = useState([]);
     const [users, setUsers] = useState([]);
+    const [carUserMap, setCarUserMap] = useState({});
     const [newCar, setNewCar] = useState({
         make: '',
         model: '',
@@ -20,6 +21,15 @@ const ManageCars = () => {
     const fetchCars = async () => {
         const data = await getAllCars();
         setCars(data);
+
+        // Construir o map { carId: userId }
+        const map = {};
+        data.forEach(car => {
+            if (car.user?.id) {
+                map[car.id] = car.user.id;
+            }
+        });
+        setCarUserMap(map);
     };
 
     const fetchUsers = async () => {
@@ -28,13 +38,23 @@ const ManageCars = () => {
     };
 
     const handleAddCar = async () => {
+        if (!newCar.userId) {
+            alert('Por favor selecione um utilizador.');
+            return;
+        }
+
         await addCarGlobal(newCar);
         setNewCar({ make: '', model: '', licensePlate: '', userId: '' });
         fetchCars();
     };
 
-    const handleDeleteCar = async (carId) => {
-        await deleteCarGlobal(carId);
+    const handleDeleteCar = async (carId, userId) => {
+        if (!userId) {
+            alert('Erro: este carro não tem utilizador associado!');
+            return;
+        }
+
+        await deleteCar(carId, userId);
         fetchCars();
     };
 
@@ -96,13 +116,18 @@ const ManageCars = () => {
                                 <td>{car.licensePlate}</td>
                                 <td>{car.user?.name}</td>
                                 <td>
-                                    <Button
-                                        variant="danger"
-                                        size="sm"
-                                        onClick={() => handleDeleteCar(car.id)}
-                                    >
-                                        Remover
-                                    </Button>
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    onClick={() => {
+                                        
+                                        const userId = carUserMap[car.id];
+                                        
+                                        handleDeleteCar(car.id, userId);
+                                    }}
+                                >
+                                    Remover
+                                </Button>
                                 </td>
                             </tr>
                         ))}
