@@ -25,9 +25,9 @@
 - **Static Analysis Dashboard (SonarCloud):**  
   https://sonarcloud.io/project/overview?id=VoltUnityTQS_VoltUnity
 - **Product specification report**  
-  - [Product Specification Report](./docs/TQS_Product%20specification%20report.pdf)
+  - [Product Specification Report](./docs/TQS_%20Product%20specification%20report.pdf)
 - **Quality Assurance manual**
-  - [Quality Assurance manual](./docs/TQS_Quality%20Assurance%20manual.pdf)
+  - [Quality Assurance manual](./docs/TQS_%20Quality%20Assurance%20manual.pdf)
 - **Server URL:**
   http://deti-tqs-16
 
