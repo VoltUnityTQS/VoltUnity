@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS cars (
     id SERIAL PRIMARY KEY,
     make VARCHAR(50),
     model VARCHAR(50),
-    license_plate VARCHAR(20),
+    license_plate VARCHAR(20) UNIQUE,
     user_id INT REFERENCES users(id)
 );
 
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 
 -- CHARGINGSESSIONS
-CREATE TABLE IF NOT EXISTS chargingsessions (
+CREATE TABLE IF NOT EXISTS charging_sessions (
     id SERIAL PRIMARY KEY,
     start_timestamp TIMESTAMP,
     end_timestamp TIMESTAMP,

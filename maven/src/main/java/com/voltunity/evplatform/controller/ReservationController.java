@@ -3,6 +3,7 @@ package com.voltunity.evplatform.controller;
 import com.voltunity.evplatform.model.Booking;
 import com.voltunity.evplatform.model.Slot;
 import com.voltunity.evplatform.model.User;
+import com.voltunity.evplatform.repository.BookingRepository;
 import com.voltunity.evplatform.service.BookingService;
 import com.voltunity.evplatform.service.SlotService;
 import com.voltunity.evplatform.service.UserService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -91,4 +93,10 @@ public class ReservationController {
             return ResponseEntity.status(403).build();
         }
     }
+
+    @GetMapping
+    public List<Booking> getAllReservations() {
+        return bookingService.getAllBookings();
+    }
+
 }

@@ -1,10 +1,25 @@
-// src/views/my-pages/user-main.jsx
-
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Table, Card, Form } from 'react-bootstrap';
 import { MdCircle } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-import { getStations } from '../../services/api';
+import { getStations, getStationSlots } from '../../services/api';
+
+// Função para calcular distância com fórmula de Haversine
+const calcularDistanciaKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+};
+
+// Coords de Aveiro
+const userLat = 40.6405;
+const userLon = -8.6538;
 
 const getColor = (status) => {
     if (status === 'available') return 'text-success';
@@ -25,22 +40,49 @@ const UserMain = () => {
         async function fetchStations() {
             try {
                 const data = await getStations();
-                // Proteção para slots!
-                const stationsAdapted = data.map(st => {
-                    const slots = Array.isArray(st.slots) ? st.slots : [];
+
+                // Para cada estação → buscar os slots
+        const stationsWithSlots = await Promise.all(
+            data.map(async (st) => {
+                try {
+                    const slots = await getStationSlots(st.id);
+
+                    const lat = parseFloat(st.lat);
+                    const lon = parseFloat(st.lng);
+
                     return {
                         id: st.id,
                         nome: st.name,
-                        distancia: st.distance || 0,
-                        rapido: slots.some(slot => slot.type === 'DC'),
+                        distancia: (isNaN(lat) || isNaN(lon))
+                            ? 0
+                            : calcularDistanciaKm(userLat, userLon, lat, lon),
+                        rapido: slots.some(slot => slot.type && (slot.type.toUpperCase().includes('DC') || slot.type.toUpperCase().includes('FAST'))),
                         status: slots.some(slot => slot.slotStatus === 'AVAILABLE')
                             ? 'available'
                             : slots.every(slot => slot.slotStatus === 'MAINTENANCE')
                             ? 'maintenance'
                             : 'in_use'
                     };
-                });
-                setStations(stationsAdapted);
+                } catch (err) {
+                    console.error(`Erro ao buscar slots da estação ${st.id}:`, err);
+
+                    const lat = parseFloat(st.latitude);
+                    const lon = parseFloat(st.longitude);
+
+                    return {
+                        id: st.id,
+                        nome: st.name,
+                        distancia: (isNaN(lat) || isNaN(lon))
+                            ? 0
+                            : calcularDistanciaKm(userLat, userLon, lat, lon),
+                        rapido: false,
+                        status: 'in_use'
+                    };
+                }
+            })
+        );
+
+                setStations(stationsWithSlots);
             } catch (error) {
                 console.error('Erro ao buscar estações:', error);
             }
@@ -96,7 +138,7 @@ const UserMain = () => {
                             >
                                 <td><MdCircle className={getColor(station.status)} /></td>
                                 <td>{station.nome}</td>
-                                <td>{station.distancia}</td>
+                                <td>{station.distancia.toFixed(1)}</td>
                                 <td>{station.rapido ? 'Sim' : 'Não'}</td>
                             </tr>
                         ))}

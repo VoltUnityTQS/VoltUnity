@@ -14,7 +14,6 @@ import {
 
 import { api } from '../../services/api';
 
-// Registrar Chart.js components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -26,7 +25,6 @@ ChartJS.register(
 );
 
 const DashboardPage = () => {
-    // STATES
     const [co2Saved, setCo2Saved] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [totalEnergy, setTotalEnergy] = useState(0);
@@ -42,63 +40,64 @@ const DashboardPage = () => {
     useEffect(() => {
         async function fetchData() {
             try {
-                // STATIONS
-                const stationsRes = await api.get('/api/v1/stations');
-                const stations = stationsRes.data;
+                // GET SLOTS
+                const slotsRes = await api.get('/slots');
+                const slots = slotsRes.data;
 
                 // Total slots
-                const totalSlotsCount = stations.reduce((sum, station) => sum + station.slots.length, 0);
-                setTotalSlots(totalSlotsCount);
+                setTotalSlots(slots.length);
 
-                // Slot status summary
+                // Estado dos slots
                 let available = 0, in_use = 0, maintenance = 0;
 
-                stations.forEach(station => {
-                    station.slots.forEach(slot => {
-                        const status = slot.slotStatus.toLowerCase();
-                        if (status === 'available') available++;
-                        else if (status === 'in_use') in_use++;
-                        else if (status === 'maintenance') maintenance++;
-                    });
+                slots.forEach(slot => {
+                    const status = slot.slotStatus.toLowerCase();
+                    if (status === 'available') available++;
+                    else if (status === 'in_use') in_use++;
+                    else if (status === 'maintenance') maintenance++;
                 });
 
                 setSlotStatusSummary({ available, in_use, maintenance });
 
-                // Slots in use per station
+                // Slots em uso por estação
                 const slotsPerStation = {};
-                stations.forEach(station => {
-                    const inUseCount = station.slots.filter(slot => slot.slotStatus.toLowerCase() === 'in_use').length;
-                    slotsPerStation[station.name] = inUseCount;
+                slots.forEach(slot => {
+                    const stationName = slot.station.name;
+                    if (!slotsPerStation[stationName]) slotsPerStation[stationName] = 0;
+                    if (slot.slotStatus.toLowerCase() === 'in_use') {
+                        slotsPerStation[stationName]++;
+                    }
                 });
                 setSlotsInUsePerStation(slotsPerStation);
 
-                // PAYMENTS → Receita total
-                const paymentsRes = await api.get('/api/v1/payments');
+                // GET PAYMENTS
+                const paymentsRes = await api.get('/payments');
                 const payments = paymentsRes.data;
                 const revenue = payments
                     .filter(payment => payment.paymentStatus === 'COMPLETED')
                     .reduce((sum, payment) => sum + payment.amount, 0);
                 setTotalRevenue(revenue);
 
-                // CHARGING SESSIONS → Energia total & CO2 saved
-                const sessionsRes = await api.get('/api/v1/charging-sessions');
+                // GET CHARGING SESSIONS
+                const sessionsRes = await api.get('/charging-sessions');
                 const sessions = sessionsRes.data;
-                const totalEnergyKwh = sessions.reduce((sum, session) => sum + session.energyConsumedkwh, 0);
+
+                const completedSessions = sessions.filter(session => session.sessionStatus === 'COMPLETED');
+                const totalEnergyKwh = completedSessions.reduce((sum, session) => sum + (session.energyConsumedKWh || 0), 0);
                 setTotalEnergy(totalEnergyKwh);
 
-                const co2Factor = 0.3; // kg CO2 per kWh (example factor)
+                const co2Factor = 0.3; // kg CO2 per kWh
                 setCo2Saved(totalEnergyKwh * co2Factor);
 
-                // BOOKINGS → últimos bookings
-                const bookingsRes = await api.get('/api/v1/bookings');
-                const bookings = bookingsRes.data;
+                // GET RESERVATIONS
+                const reservationsRes = await api.get('/reservations');
+                const reservations = reservationsRes.data;
 
-                // ordenar DESC por start e pegar últimos 5
-                const sortedBookings = bookings
+                const sortedReservations = reservations
                     .sort((a, b) => new Date(b.start) - new Date(a.start))
                     .slice(0, 5);
 
-                setRecentBookings(sortedBookings);
+                setRecentBookings(sortedReservations);
 
             } catch (error) {
                 console.error('Erro ao buscar dados do dashboard:', error);
@@ -199,12 +198,12 @@ const DashboardPage = () => {
                 </Col>
             </Row>
 
-            {/* Recent bookings */}
+            {/* Recent reservations */}
             <Row className="mt-4">
                 <Col>
                     <Card>
                         <Card.Body>
-                            <Card.Title>Últimos Bookings</Card.Title>
+                            <Card.Title>Últimas Reservas</Card.Title>
                             <Table striped bordered hover>
                                 <thead>
                                     <tr>
@@ -216,15 +215,15 @@ const DashboardPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recentBookings.map((booking) => (
-                                        <tr key={booking.id}>
-                                            <td>{booking.id}</td>
-                                            <td>{booking.slotId}</td>
-                                            <td>{booking.userId}</td>
-                                            <td>{new Date(booking.start).toLocaleString()}</td>
-                                            <td>{new Date(booking.end).toLocaleString()}</td>
-                                        </tr>
-                                    ))}
+                                {recentBookings.map((booking) => (
+                                    <tr key={booking.id}>
+                                    <td>{booking.id}</td>
+                                    <td>{booking.slot?.id}</td>
+                                    <td>{booking.user?.id}</td>
+                                    <td>{new Date(booking.start).toLocaleString()}</td>
+                                    <td>{new Date(booking.end_time).toLocaleString()}</td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </Table>
                         </Card.Body>

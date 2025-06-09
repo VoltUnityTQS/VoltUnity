@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Row, Col, Card, Table, Button } from 'react-bootstrap';
+import { Card, Table, Button, Modal, Form } from 'react-bootstrap';
 import { MdCircle } from 'react-icons/md';
 import { FiArrowLeft } from 'react-icons/fi';
-import { getStation, createBooking } from '../../services/api';
+import { createBooking, getStationSlots } from '../../services/api';
 
 const getColor = (status) => {
     if (status === 'AVAILABLE') return 'text-success';
@@ -21,45 +21,94 @@ const StationPage = () => {
     const [station, setStation] = useState(null);
     const [slots, setSlots] = useState([]);
 
+    // Modal states
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    const [selectedSlotId, setSelectedSlotId] = useState(null);
+    const [bookingStartTime, setBookingStartTime] = useState('');
+    const [bookingEndTime, setBookingEndTime] = useState('');
+    const [estimatedPrice, setEstimatedPrice] = useState(0);
+
+    // Mock user (ou usa o real se tiveres auth)
+    const user = { id: 1 };
+
     useEffect(() => {
         async function fetchStation() {
             try {
-                const data = await getStation(stationId);
-                setStation({
-                    id: data.id,
-                    nome: data.name,
-                    distancia: 0 // não tens no backend
-                });
+                const data = await getStationSlots(stationId);
+                setSlots(data);
 
-                const slotsAdapted = data.slots.map(slot => ({
-                    id: slot.id,
-                    status: slot.slotStatus,
-                    capacidadeKW: slot.power,
-                    rapido: slot.type && slot.type.toLowerCase().includes('fast')
-                }));
-
-                setSlots(slotsAdapted);
+                // Usar a station que vem dos slots
+                if (data.length > 0 && data[0].station) {
+                    setStation({
+                        id: data[0].station.id,
+                        nome: data[0].station.name,
+                        distancia: 0,
+                        pricePerKwh: data[0].station.pricePerKWh
+                    });
+                } else {
+                    setStation({
+                        id: stationId,
+                        nome: `Estação ${stationId}`,
+                        distancia: 0,
+                        pricePerKwh: 0.3
+                    });
+                }
             } catch (error) {
-                console.error('Erro ao buscar estação:', error);
+                console.error('Erro ao buscar slots da estação:', error);
             }
         }
 
         fetchStation();
     }, [stationId]);
 
-    const handleBooking = async (slotId) => {
+    const openBookingModal = (slotId) => {
+        setSelectedSlotId(slotId);
+        setBookingStartTime('');
+        setBookingEndTime('');
+        setEstimatedPrice(0);
+        setShowBookingModal(true);
+    };
+
+    const updateEstimatedPrice = (startTime, endTime) => {
+        if (!startTime || !endTime) {
+            setEstimatedPrice(0);
+            return;
+        }
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        const start = new Date(`${todayStr}T${startTime}`);
+        const end = new Date(`${todayStr}T${endTime}`);
+
+        if (end <= start) {
+            setEstimatedPrice(0);
+            return;
+        }
+
+        const durationInHours = (end - start) / (1000 * 60 * 60);
+        const price = durationInHours * 10 * station.pricePerKwh;
+        setEstimatedPrice(price.toFixed(2));
+    };
+
+    const handleBooking = async () => {
         try {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            const startDate = new Date(`${todayStr}T${bookingStartTime}`);
+            const endDate = new Date(`${todayStr}T${bookingEndTime}`);
+
             const bookingData = {
-                slotId: slotId,
-                userId: 1, // hardcoded user por agora (ajustar se tiveres auth)
-                start: new Date().toISOString(),
-                end: new Date(Date.now() + 3600000).toISOString(), // +1h
-                priceAtBooking: 5.0,
-                bookingStatus: 'CONFIRMED'
+                slotId: selectedSlotId,
+                userId: user.id,
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
             };
 
             await createBooking(bookingData);
-            alert(`Booking criado para Slot ${slotId} na estação ${station?.nome}!`);
+            alert(`Reserva criada para Slot ${selectedSlotId}!`);
+            setShowBookingModal(false);
         } catch (error) {
             console.error('Erro ao criar booking:', error);
             alert('Erro ao criar booking.');
@@ -92,17 +141,17 @@ const StationPage = () => {
                     <tbody>
                         {slots.map((slot) => (
                             <tr key={slot.id}>
-                                <td><MdCircle className={getColor(slot.status)} /></td>
-                                <td>Slot #{slot.id}</td>
-                                <td>{slot.capacidadeKW} kW</td>
-                                <td>{slot.rapido ? 'Sim' : 'Não'}</td>
+                                <td><MdCircle className={getColor(slot.slotStatus)} /></td>
+                                <td>Slot #{slot.slotNumber}</td>
+                                <td>{slot.power} kW</td>
+                                <td>{slot.type?.toLowerCase().includes('fast') || slot.type?.toLowerCase().includes('dc') ? 'Sim' : 'Não'}</td>
                                 <td>
                                     <Button
                                         variant="primary"
-                                        disabled={slot.status !== 'AVAILABLE'}
-                                        onClick={() => handleBooking(slot.id)}
+                                        disabled={slot.slotStatus !== 'AVAILABLE'}
+                                        onClick={() => openBookingModal(slot.id)}
                                     >
-                                        Reservar
+                                        {slot.slotStatus === 'AVAILABLE' ? 'Reservar' : 'Indisponível'}
                                     </Button>
                                 </td>
                             </tr>
@@ -110,6 +159,50 @@ const StationPage = () => {
                     </tbody>
                 </Table>
             </Card.Body>
+
+            {/* Modal de booking */}
+            <Modal show={showBookingModal} onHide={() => setShowBookingModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Nova Reserva - Slot #{selectedSlotId}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Hora de início</Form.Label>
+                            <Form.Control
+                                type="time"
+                                value={bookingStartTime}
+                                min={new Date().toISOString().slice(11, 16)}
+                                onChange={(e) => {
+                                    setBookingStartTime(e.target.value);
+                                    updateEstimatedPrice(e.target.value, bookingEndTime);
+                                }}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Hora de fim</Form.Label>
+                            <Form.Control
+                                type="time"
+                                value={bookingEndTime}
+                                min={bookingStartTime || new Date().toISOString().slice(11, 16)}
+                                onChange={(e) => {
+                                    setBookingEndTime(e.target.value);
+                                    updateEstimatedPrice(bookingStartTime, e.target.value);
+                                }}
+                            />
+                        </Form.Group>
+                        <div><strong>Preço estimado:</strong> {estimatedPrice} €</div>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowBookingModal(false)}>
+                        Cancelar
+                    </Button>
+                    <Button variant="primary" onClick={handleBooking} disabled={!bookingStartTime || !bookingEndTime}>
+                        Confirmar Reserva
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Card>
     );
 };

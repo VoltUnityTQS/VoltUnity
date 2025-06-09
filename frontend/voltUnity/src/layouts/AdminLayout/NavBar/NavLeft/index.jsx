@@ -1,53 +1,65 @@
 import React from 'react';
 import { ListGroup, Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import useWindowSize from '../../../../hooks/useWindowSize';
 import NavSearch from './NavSearch';
 
 const NavLeft = () => {
-  const windowSize = useWindowSize();
+    const navigate = useNavigate();
+    const windowSize = useWindowSize();
 
-  let navItemClass = ['nav-item'];
-  if (windowSize.width <= 575) {
-    navItemClass = [...navItemClass, 'd-none'];
-  }
+    const user = JSON.parse(localStorage.getItem('selectedUser'));
+    const role = user?.role;
 
-  return (
-    <React.Fragment>
-      <ListGroup as="ul" bsPrefix=" " className="navbar-nav mr-auto">
-        <ListGroup.Item as="li" bsPrefix=" " className={navItemClass.join(' ')}>
-          <Dropdown align={'start'}>
-            <Dropdown.Toggle variant={'link'} id="dropdown-basic">
-              Dropdown
-            </Dropdown.Toggle>
-            <ul>
-              <Dropdown.Menu>
-                <li>
-                  <Link to="#" className="dropdown-item">
-                    Action
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="dropdown-item">
-                    Another action
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="dropdown-item">
-                    Something else here
-                  </Link>
-                </li>
-              </Dropdown.Menu>
-            </ul>
-          </Dropdown>
-        </ListGroup.Item>
-        <ListGroup.Item as="li" bsPrefix=" " className="nav-item">
-          <NavSearch windowWidth={windowSize.width} />
-        </ListGroup.Item>
-      </ListGroup>
-    </React.Fragment>
-  );
+    const handleNavigate = (path) => {
+        navigate(path);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('selectedUser');
+        navigate('/login');
+    };
+
+    return (
+        <React.Fragment>
+            <ListGroup as="ul" bsPrefix=" " className="navbar-nav mr-auto">
+                <ListGroup.Item as="li" bsPrefix=" " className="nav-item">
+                    <Dropdown align="start">
+                        <Dropdown.Toggle variant={'link'} id="dropdown-menu-nav">
+                            Menu
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            {role === 'ADMIN' ? (
+                                <>
+                                    <Dropdown.Item onClick={() => handleNavigate('/app/dashboard/default')}>Dashboard</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/user-main')}>Estações</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/manage-users')}>Gerir Utilizadores</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/manage-stations')}>Gerir Estações</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/manage-cars')}>Gerir Carros</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/account')}>Conta</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                                </>
+                            ) : (
+                                <>
+                                    <Dropdown.Item onClick={() => handleNavigate('/user-dashboard')}>Dashboard</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/user-main')}>Estações</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleNavigate('/account')}>Conta</Dropdown.Item>
+                                    <Dropdown.Divider />
+                                    <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                                </>
+                            )}
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </ListGroup.Item>
+
+                <ListGroup.Item as="li" bsPrefix=" " className="nav-item">
+                    <NavSearch windowWidth={windowSize.width} />
+                </ListGroup.Item>
+            </ListGroup>
+        </React.Fragment>
+    );
 };
 
 export default NavLeft;

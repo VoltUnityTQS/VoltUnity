@@ -88,4 +88,8 @@ public class BookingService {
     public List<Booking> getBookingsByUser(Long userId) {
         return bookingRepository.findByUser_Id(userId);
     }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
 }
