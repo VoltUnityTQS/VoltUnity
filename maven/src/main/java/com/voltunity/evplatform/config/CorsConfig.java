@@ -16,10 +16,14 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost", "http://deti-tqs-16") // depende do teu React
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedOrigins(
+                            "http://localhost",       // Acesso local
+                            "http://frontend",       // Nome do serviço no Docker
+                            "http://react_app",      // Nome do container
+                            "http://deti-tqs-16"    // Seu domínio específico
+                        ).allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(false);
+                        .allowCredentials(true);
             }
         };
     }
