@@ -1,5 +1,5 @@
 -- USERS
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100),
@@ -8,16 +8,16 @@ CREATE TABLE users (
 );
 
 -- CARS
-CREATE TABLE cars (
+CREATE TABLE IF NOT EXISTS cars (
     id SERIAL PRIMARY KEY,
     make VARCHAR(50),
     model VARCHAR(50),
-    license_plate VARCHAR(20),
+    license_plate VARCHAR(20) UNIQUE,
     user_id INT REFERENCES users(id)
 );
 
 -- STATIONS
-CREATE TABLE stations (
+CREATE TABLE IF NOT EXISTS stations (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
     station_status VARCHAR(20),
@@ -30,7 +30,7 @@ CREATE TABLE stations (
 );
 
 -- SLOTS
-CREATE TABLE slots (
+CREATE TABLE IF NOT EXISTS slots (
     id SERIAL PRIMARY KEY,
     slot_status VARCHAR(20),
     power DOUBLE PRECISION,
@@ -40,13 +40,13 @@ CREATE TABLE slots (
 );
 
 -- STATION_CHARGER_TYPES
-CREATE TABLE station_charger_types (
+CREATE TABLE IF NOT EXISTS station_charger_types (
     station_id INT REFERENCES stations(id),
     charger_types VARCHAR(255)
 );
 
 -- SUBSCRIPTIONS
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
     id SERIAL PRIMARY KEY,
     subscription_type VARCHAR(50),
     start_date TIMESTAMP,
@@ -59,7 +59,7 @@ CREATE TABLE subscriptions (
 );
 
 -- BOOKINGS
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
     booking_status VARCHAR(20),
     start TIMESTAMP,
@@ -70,7 +70,7 @@ CREATE TABLE bookings (
 );
 
 -- CHARGINGSESSIONS
-CREATE TABLE chargingsessions (
+CREATE TABLE IF NOT EXISTS charging_sessions (
     id SERIAL PRIMARY KEY,
     start_timestamp TIMESTAMP,
     end_timestamp TIMESTAMP,
@@ -81,7 +81,7 @@ CREATE TABLE chargingsessions (
 );
 
 -- PAYMENTS
-CREATE TABLE payments (
+CREATE TABLE IF NOT EXISTS payments (
     id SERIAL PRIMARY KEY,
     amount DOUBLE PRECISION,
     currency VARCHAR(10),

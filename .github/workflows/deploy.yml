@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "
+          |1|4EVmmfywHPsEeg7fv4B53IsB55Y=|9N1Ojixl60nEoyCf5zk1VmcEj0M= ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAROFB07DUnu+pzJaAdqHdRvePmcUMR2SaWFO7TzQambRHrnTR39CQzG+HEjyX8Qo8TKHGhLsq8asGmbuwXorfsJ7jzt85qwUaE5+EhKm9UKeryKqKbHtMkX8kwgVlOS0N4YqzcGJHqT62Uzf+tLlVQIpRchI+Zwja43rHyIIVoeY3bTfxGxQhX3Bwx8xjrP3v9vv3ENlJgrR1FdrdDFKgrVCH2DYVqJHjlfQHwP4BRgC6sFnO6qcNM1SRRRnUn7gA85B0xKCjrzj9T6fPCP/15johNTd7K3t4sCuqRv4i8yKIoxAQUHhCvzbNc739lmceGILUN4atcvoLhxs3IHGP
+          |1|6Ypwcv5n/snZSnmAdT2/qEBEFYk=|BSw/f9ozaY9jg6JBrE3YWN0NvWU= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDATtaNWuLtrUcEbnOko8dnQeuEbeoDzNzqxFMzLPXeBfLDKIoNWta7sYPTU8slJT7/0DH7a0EIGvFWVRjRMkbM=
+          |1|SYSsd4sqLqmIQykyvA8QuVcY/1A=|wb0fKVh2nfnTcgBT0lm9rY2vOzU= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJpEcifz7XYmuANGC0DrvucYt36slUJFOQ7hN021F5my
+          " >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        run: |
+          ssh giovanni.s@deti-tqs-16.ua.pt << 'EOF'
+            cd /home/giovanni.s/VoltUnity
+            git pull origin main
+            docker-compose down -v
+            docker-compose up -d --build
+          EOF
