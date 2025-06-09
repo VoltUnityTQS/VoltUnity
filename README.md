@@ -11,7 +11,6 @@
 | Diogo Gaitas            | 73259         | Product Owner |
 | Giovanni Santos         | 115637        | QA Engineer |
 | Rafael Semedo           | 115665        | Team Coordinator |
-| Vitalie Bologa          | 107854        | DevOps Master |
 
 --- 
 
@@ -24,11 +23,11 @@
 - **API Documentation (Swagger UI):**  
   http://localhost:8080/swagger-ui/index.html
 - **Static Analysis Dashboard (SonarCloud):**  
-  *N/A* 
-- **Product specification report**
-    - https://docs.google.com/document/d/1R00x0DuEFyvcu8fs2Om8XglulbfiTjIq1eunUMcvGEM/edit?usp=sharing  
+  https://sonarcloud.io/project/overview?id=VoltUnityTQS_VoltUnity
+- **Product specification report**  
+  - [Product Specification Report](./docs/TQS_%20Product%20specification%20report.pdf)
 - **Quality Assurance manual**
-    - https://docs.google.com/document/d/1GxS0mjWFWpdJJCxB7eOgNDMQjC87Ltm3WZVQiWVAiW4/edit?usp=sharing
+  - [Quality Assurance manual](./docs/TQS_%20Quality%20Assurance%20manual.pdf)
 - **Server URL:**
   http://deti-tqs-16
 
@@ -40,7 +39,7 @@
 docker compose up -d --build
 ```
 
-## CLose container
+## Close container
 
 ```sh
 docker compose down -v
