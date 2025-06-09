@@ -13,10 +13,8 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-       @Query("SELECT b FROM Booking b WHERE b.slot = :slot AND " +
-            "(:start < b.end_time AND :end_time > b.start)")
-    List<Booking> findBySlotAndTimeOverlap(Slot slot, LocalDateTime start, LocalDateTime end);
-
+       @Query("SELECT b FROM Booking b WHERE b.slot = :slot AND (:start < b.end_time AND :end > b.start)")
+       List<Booking> findBySlotAndTimeOverlap(Slot slot, LocalDateTime start, LocalDateTime end);
 
        @Query("SELECT b FROM Booking b WHERE b.slot = :slot " +
               "AND b.bookingStatus = 'confirmed' " +
