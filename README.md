@@ -8,10 +8,10 @@
 ## b) Project Team
 | Student Name            | Nº MEC    | Role(s)                        |
 |-------------------------|---------------|--------------------------------|
-| Diogo Gaitas            | 73259         | N/A |
-| Giovanni Santos         | 115637        | N/A |
-| Rafael Semedo           | 115665        | N/A |
-| Vitalie Bologa          | 107854        | N/A |
+| Diogo Gaitas            | 73259         | Product Owner |
+| Giovanni Santos         | 115637        | QA Engineer |
+| Rafael Semedo           | 115665        | Team Coordinator |
+| Vitalie Bologa          | 107854        | DevOps Master |
 
 --- 
 
@@ -22,12 +22,26 @@
 - **GitHub Repository:**  
   https://github.com/VoltUnityTQS/VoltUnity
 - **API Documentation (Swagger UI):**  
-  *N/A*
+  http://localhost:8080/swagger-ui/index.html
 - **Static Analysis Dashboard (SonarCloud):**  
   *N/A* 
 - **Product specification report**
     - https://docs.google.com/document/d/1R00x0DuEFyvcu8fs2Om8XglulbfiTjIq1eunUMcvGEM/edit?usp=sharing  
 - **Quality Assurance manual**
     - https://docs.google.com/document/d/1GxS0mjWFWpdJJCxB7eOgNDMQjC87Ltm3WZVQiWVAiW4/edit?usp=sharing
+- **Server URL:**
+  http://deti-tqs-16
 
 ---
+
+## Run Container
+
+```sh
+docker compose up -d --build
+```
+
+## CLose container
+
+```sh
+docker compose down -v
+```
