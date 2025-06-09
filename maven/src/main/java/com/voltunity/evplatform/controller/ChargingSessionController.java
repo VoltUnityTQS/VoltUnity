@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/charging-sessions")
-@CrossOrigin(origins = "*")
 public class ChargingSessionController {
 
     @Autowired

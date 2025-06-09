@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/cars")
-@CrossOrigin(origins = "*")
 public class CarController {
 
     @Autowired

@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
-@CrossOrigin(origins = "*")
 public class ReservationController {
 
     @Autowired
