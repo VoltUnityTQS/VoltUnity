@@ -117,7 +117,7 @@ const routes = [
             {
                 exact: 'true',
                 path: '/manage-cars',
-                element: lazy(() => import('./views/my-pages/manage-cars')),
+                element: lazy(() => import('./views/my-pages/manage-cars.jsx')),
                 title: 'Gerir Carros'
             },
 
