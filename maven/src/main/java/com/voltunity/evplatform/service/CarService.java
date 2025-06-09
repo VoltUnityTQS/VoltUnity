@@ -20,6 +20,9 @@ public class CarService {
     public Car addCar(Long userId, Car car) {
         User user = userService.getUserById(userId);
         car.setUser(user);
+        if (carRepository.existsByLicensePlate(car.getLicensePlate())) {
+            throw new RuntimeException("Já existe um carro com esta matrícula!");
+        }
         return carRepository.save(car);
     }
 

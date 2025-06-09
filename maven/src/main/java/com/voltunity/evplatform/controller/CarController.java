@@ -68,7 +68,6 @@ public class CarController {
             @PathVariable Long carId,
             @RequestHeader("X-User-Id") Long currentUserId
     ) {
-        // Aqui poderias adicionar segurança extra (só dono do carro ou admin pode apagar)
         carService.deleteCar(carId);
         return ResponseEntity.noContent().build();
     }
