@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/stations")
 //@CrossOrigin(origins = "*") 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost", "http://deti-tqs-16:80"})
 
 public class StationController {
 

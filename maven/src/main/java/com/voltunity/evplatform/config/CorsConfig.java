@@ -16,7 +16,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost") // depende do teu React
+                        .allowedOrigins("http://localhost:3000", "http://localhost:5173", "http://localhost", "http://deti-tqs-16:80") // depende do teu React
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(false);
